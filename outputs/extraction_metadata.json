@@ -1,0 +1,156 @@
+{
+  "pdf_path": "D:\\Research Vision\\research-vision\\data\\attention is all you need.pdf",
+  "total_pages": 15,
+  "extracted_images": [
+    {
+      "page": 3,
+      "index": 1,
+      "filename": "page_3_img_1.png",
+      "format": "png"
+    },
+    {
+      "page": 4,
+      "index": 1,
+      "filename": "page_4_img_1.png",
+      "format": "png"
+    },
+    {
+      "page": 4,
+      "index": 2,
+      "filename": "page_4_img_2.png",
+      "format": "png"
+    }
+  ],
+  "detected_figures": [
+    {
+      "page": 3,
+      "block": 1,
+      "filename": "figure_page_3_block_1.png",
+      "bbox": [
+        196.5590057373047,
+        72.00198364257812,
+        415.43902587890625,
+        394.4179992675781
+      ]
+    },
+    {
+      "page": 4,
+      "block": 1,
+      "filename": "figure_page_4_block_1.png",
+      "bbox": [
+        174.9600067138672,
+        94.02497863769531,
+        239.04000854492188,
+        221.32098388671875
+      ]
+    },
+    {
+      "page": 4,
+      "block": 2,
+      "filename": "figure_page_4_block_2.png",
+      "bbox": [
+        346.7720031738281,
+        82.68698120117188,
+        467.0119934082031,
+        267.29498291015625
+      ]
+    }
+  ],
+  "text_extraction": [
+    {
+      "page": 1,
+      "filename": "page_1_text.txt",
+      "text_blocks": 56,
+      "figure_regions": 0
+    },
+    {
+      "page": 2,
+      "filename": "page_2_text.txt",
+      "text_blocks": 53,
+      "figure_regions": 0
+    },
+    {
+      "page": 3,
+      "filename": "page_3_text.txt",
+      "text_blocks": 27,
+      "figure_regions": 1
+    },
+    {
+      "page": 4,
+      "filename": "page_4_text.txt",
+      "text_blocks": 43,
+      "figure_regions": 2
+    },
+    {
+      "page": 5,
+      "filename": "page_5_text.txt",
+      "text_blocks": 56,
+      "figure_regions": 0
+    },
+    {
+      "page": 6,
+      "filename": "page_6_text.txt",
+      "text_blocks": 64,
+      "figure_regions": 0
+    },
+    {
+      "page": 7,
+      "filename": "page_7_text.txt",
+      "text_blocks": 51,
+      "figure_regions": 0
+    },
+    {
+      "page": 8,
+      "filename": "page_8_text.txt",
+      "text_blocks": 87,
+      "figure_regions": 0
+    },
+    {
+      "page": 9,
+      "filename": "page_9_text.txt",
+      "text_blocks": 149,
+      "figure_regions": 0
+    },
+    {
+      "page": 10,
+      "filename": "page_10_text.txt",
+      "text_blocks": 76,
+      "figure_regions": 0
+    },
+    {
+      "page": 11,
+      "filename": "page_11_text.txt",
+      "text_blocks": 47,
+      "figure_regions": 0
+    },
+    {
+      "page": 12,
+      "filename": "page_12_text.txt",
+      "text_blocks": 43,
+      "figure_regions": 0
+    },
+    {
+      "page": 13,
+      "filename": "page_13_text.txt",
+      "text_blocks": 72,
+      "figure_regions": 0
+    },
+    {
+      "page": 14,
+      "filename": "page_14_text.txt",
+      "text_blocks": 112,
+      "figure_regions": 0
+    },
+    {
+      "page": 15,
+      "filename": "page_15_text.txt",
+      "text_blocks": 112,
+      "figure_regions": 0
+    }
+  ],
+  "output_directories": {
+    "diagrams": "..\\outputs\\diagrams",
+    "text": "..\\outputs\\text_sections",
+    "annotated": "..\\outputs\\annotated_pages"
+  }
+}

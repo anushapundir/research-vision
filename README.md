@@ -35,7 +35,7 @@ python scripts/demo.py
 
 ## 📋 Features
 
-### ✅ Implemented (Phase 1: Preprocessing)
+### ✅ Implemented
 
 - **PDF to Image Conversion** - High-quality rendering at configurable DPI using PyMuPDF
 - **Classical Image Processing Pipeline**:
@@ -49,53 +49,28 @@ python scripts/demo.py
 - **Batch Processing** - All pages processed automatically
 - **Export Capabilities** - Download processed images
 
-### 🚧 Planned (Future Phases)
-
-- **Layout Segmentation** - Text block and figure detection using morphological operations
-- **OCR Integration** - Text extraction with Tesseract/EasyOCR
-- **AI Summarization** - Research paper summarization using Google Gemini
-- **End-to-End Pipeline** - Complete document analysis workflow
-
 ## 🏗️ Project Structure
 
 ```
 research-vision/
 │
 ├── app/
-│   ├── streamlit_preprocess.py     # Preprocessing web interface (✅ Working)
-│   └── streamlit_full_app.py       # Full pipeline interface (⏳ Placeholder)
+│   └── streamlit_preprocess.py     # Preprocessing web interface
 │
 ├── core/
 │   ├── pdf/
-│   │   └── pdf_loader.py           # PDF to image conversion (✅ Implemented)
+│   │   └── pdf_loader.py           # PDF to image conversion
 │   │
-│   ├── preprocessing/
-│   │   └── preprocess.py           # Image processing filters (✅ Implemented)
-│   │
-│   ├── segmentation/
-│   │   ├── segmenter.py            # Layout analysis (⏳ Placeholder)
-│   │   └── morphology_utils.py     # Morphological operations (⏳ Placeholder)
-│   │
-│   ├── ocr/
-│   │   ├── ocr_engine.py           # Text extraction (⏳ Placeholder)
-│   │   └── postprocess_text.py     # Text cleaning (⏳ Placeholder)
-│   │
-│   ├── ai/
-│   │   ├── gemini_client.py        # Gemini API interface (⏳ Placeholder)
-│   │   └── summary_pipeline.py     # Summarization pipeline (⏳ Placeholder)
-│   │
-│   └── pipeline/
-│       └── end_to_end.py           # Full pipeline orchestration (⏳ Placeholder)
+│   └── preprocessing/
+│       └── preprocess.py           # Image processing filters
 │
 ├── data/                           # Input PDFs
 ├── outputs/                        # Processing results
 │   ├── pages/                      # Original page images
 │   ├── preprocessed/               # Filtered images
-│   ├── segments/                   # Segmented regions
-│   ├── crops_text/                 # Text block crops
-│   ├── crops_figures/              # Figure crops
-│   ├── ocr_text/                   # Extracted text
-│   └── summaries/                  # AI-generated summaries
+│   └── ocr_text/                   # For future OCR output
+│
+├── models/                         # For future ML models
 │
 ├── notebooks/                      # Jupyter notebooks for experimentation
 │   ├── preprocessing_tests.ipynb
@@ -196,37 +171,16 @@ jupyter notebook notebooks/
 
 ### Project Status
 
-**Phase 1: Preprocessing** ✅ Complete
+**Current Phase: Preprocessing** ✅ Complete
 - All classical image processing filters implemented
 - Web and CLI interfaces working
 - Batch processing and export functional
-
-**Phase 2: Segmentation** ⏳ In Progress
-- Morphological operations to be implemented
-- Connected component analysis
-- Text vs. figure classification
-
-**Phase 3: OCR** ⏳ Planned
-- OCR engine integration
-- Text cleaning and postprocessing
-- Multi-block text merging
-
-**Phase 4: AI Summarization** ⏳ Planned
-- Gemini API integration
-- Prompt engineering for research papers
-- Structured summary generation
-
-**Phase 5: Full Pipeline** ⏳ Planned
-- End-to-end orchestration
-- Complete web interface
-- Batch document processing
 
 ## 📝 Notes
 
 - This is an academic project for learning classical image processing techniques
 - All preprocessing logic is preserved from the original implementation
 - The modular structure allows for easy experimentation and extension
-- Placeholder modules have clear documentation and type hints for future implementation
 
 ## 👥 Contributing
 
@@ -244,7 +198,7 @@ Educational project for Image and Video Processing course.
 
 ---
 
-**Version**: 2.0.0  
-**Research Vision** - From Document to Insight
+**Version**: 1.0.0  
+**Research Vision** - PDF Preprocessing Pipeline
 
-**Status**: Phase 1 Complete | Phases 2-5 In Development
+**Status**: Preprocessing Complete

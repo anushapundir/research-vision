@@ -3,20 +3,32 @@ Research Vision - PDF Preprocessing Application
 Interactive web app to visualize PDF page preprocessing results.
 
 Usage:
-    python -m streamlit run app_streamlit_preprocess.py
+    streamlit run app/streamlit_preprocess.py
 """
 
 import streamlit as st
 import cv2
 import numpy as np
 import os
-from app.pdf_loader import load_pdf_to_images
-from app.preprocess import run_full_preprocessing
+import sys
+from pathlib import Path
 
+# Configuration - Use paths relative to project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# Configuration
-DATA_DIR = "data"
-os.makedirs(DATA_DIR, exist_ok=True)
+# Updated imports for new structure
+from core.pdf.pdf_loader import load_pdf_to_images
+from core.preprocessing.preprocess import run_full_preprocessing
+DATA_DIR = PROJECT_ROOT / "data"
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
+PAGES_DIR = OUTPUTS_DIR / "pages"
+PREPROCESSED_DIR = OUTPUTS_DIR / "preprocessed"
+
+# Ensure directories exist
+DATA_DIR.mkdir(exist_ok=True)
+PAGES_DIR.mkdir(parents=True, exist_ok=True)
+PREPROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def numpy_to_streamlit(image: np.ndarray) -> np.ndarray:
@@ -38,6 +50,25 @@ def numpy_to_streamlit(image: np.ndarray) -> np.ndarray:
     return image
 
 
+def save_preprocessing_outputs(page_idx: int, results: dict) -> None:
+    """
+    Save preprocessing outputs to the outputs directory structure.
+    
+    Args:
+        page_idx (int): Page index (0-based)
+        results (dict): Preprocessing results dictionary
+    """
+    # Save original page
+    page_path = PAGES_DIR / f"page_{page_idx + 1:03d}.png"
+    cv2.imwrite(str(page_path), results['original'])
+    
+    # Save key preprocessed outputs
+    for name in ['gray', 'otsu', 'adaptive']:
+        if name in results:
+            output_path = PREPROCESSED_DIR / f"page_{page_idx + 1:03d}_{name}.png"
+            cv2.imwrite(str(output_path), results[name])
+
+
 def main():
     """
     Main Streamlit application.
@@ -45,7 +76,7 @@ def main():
     # Page configuration
     st.set_page_config(
         page_title="Research Vision - PDF Preprocessor",
-        page_icon="�",
+        page_icon="📄",
         layout="wide"
     )
     
@@ -71,7 +102,7 @@ def main():
         
         if uploaded_file is not None:
             # Save uploaded file temporarily
-            pdf_path = os.path.join(DATA_DIR, uploaded_file.name)
+            pdf_path = DATA_DIR / uploaded_file.name
             with open(pdf_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
             
@@ -97,7 +128,7 @@ def main():
             if should_load:
                 with st.spinner("Loading PDF pages..."):
                     try:
-                        pages = load_pdf_to_images(pdf_path, dpi=dpi)
+                        pages = load_pdf_to_images(str(pdf_path), dpi=dpi)
                         st.session_state['pages'] = pages
                         st.session_state['current_pdf'] = uploaded_file.name
                         st.session_state['current_dpi'] = dpi
@@ -105,7 +136,10 @@ def main():
                         # Process all pages immediately
                         st.session_state['all_results'] = {}
                         for idx, page in enumerate(pages):
-                            st.session_state['all_results'][idx] = run_full_preprocessing(page)
+                            results = run_full_preprocessing(page)
+                            st.session_state['all_results'][idx] = results
+                            # Save outputs to disk
+                            save_preprocessing_outputs(idx, results)
                     except Exception as e:
                         st.error(f"❌ Error loading PDF: {str(e)}")
                         st.session_state['pdf_loaded'] = False
@@ -113,6 +147,7 @@ def main():
             
             pages = st.session_state.get('pages', [])
             st.success(f"✓ Loaded and processed {len(pages)} page(s)")
+            st.info(f"📁 Outputs saved to:\n- `{PAGES_DIR.relative_to(PROJECT_ROOT)}/`\n- `{PREPROCESSED_DIR.relative_to(PROJECT_ROOT)}/`")
             
             # Page selector
             if st.session_state.get('pdf_loaded', False) and len(pages) > 0:
@@ -137,6 +172,7 @@ def main():
             2. **Auto-Processing**: All pages are automatically preprocessed
             3. **Select Page**: Choose which page to view from the dropdown
             4. **Download**: Export processed images for any page
+            5. **Outputs**: All results are automatically saved to the `outputs/` directory
             
             **Preprocessing Pipeline:**
             - Grayscale conversion
@@ -167,44 +203,44 @@ def main():
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("**Original Image**")
-                st.image(numpy_to_streamlit(results['original']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['original']), use_column_width=True)
             with col2:
                 st.markdown("**Grayscale**")
                 st.caption("Converted using weighted average: 0.299R + 0.587G + 0.114B")
-                st.image(numpy_to_streamlit(results['gray']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['gray']), use_column_width=True)
             
             # Row 2: Histogram Equalization
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("**Histogram Equalized**")
                 st.caption("Global contrast enhancement using histogram redistribution")
-                st.image(numpy_to_streamlit(results['equalized']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['equalized']), use_column_width=True)
             with col2:
                 st.markdown("**CLAHE Enhanced**")
                 st.caption("Contrast Limited Adaptive Histogram Equalization")
-                st.image(numpy_to_streamlit(results['clahe']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['clahe']), use_column_width=True)
             
             # Row 3: Denoising
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("**Gaussian Blur**")
                 st.caption("Weighted average smoothing for Gaussian noise reduction")
-                st.image(numpy_to_streamlit(results['gaussian']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['gaussian']), use_column_width=True)
             with col2:
                 st.markdown("**Median Blur**")
                 st.caption("Non-linear filter excellent for salt-and-pepper noise")
-                st.image(numpy_to_streamlit(results['median']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['median']), use_column_width=True)
             
             # Row 4: Binarization
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("**Otsu's Thresholding**")
                 st.caption("Automatic global threshold using bimodal histogram")
-                st.image(numpy_to_streamlit(results['otsu']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['otsu']), use_column_width=True)
             with col2:
                 st.markdown("**Adaptive Thresholding**")
                 st.caption("Local thresholding for varying illumination")
-                st.image(numpy_to_streamlit(results['adaptive']), use_container_width=True)
+                st.image(numpy_to_streamlit(results['adaptive']), use_column_width=True)
             
             # Download section
             st.divider()

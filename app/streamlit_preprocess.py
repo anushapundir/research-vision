@@ -20,15 +20,36 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # Updated imports for new structure
 from core.pdf.pdf_loader import load_pdf_to_images
 from core.preprocessing.preprocess import run_full_preprocessing
+from core.layout.layout_analysis import LayoutAnalyzer
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 PAGES_DIR = OUTPUTS_DIR / "pages"
 PREPROCESSED_DIR = OUTPUTS_DIR / "preprocessed"
+LAYOUT_ANALYSIS_DIR = OUTPUTS_DIR / "layout_analysis"
+
+# Model Paths
+MODEL_CONFIG_PATH = PROJECT_ROOT / "notebooks/models/config.yaml"
+MODEL_WEIGHTS_PATH = PROJECT_ROOT / "notebooks/models/model_final.pth"
 
 # Ensure directories exist
 DATA_DIR.mkdir(exist_ok=True)
 PAGES_DIR.mkdir(parents=True, exist_ok=True)
 PREPROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+LAYOUT_ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+
+@st.cache_resource
+def get_layout_analyzer():
+    """
+    Initialize and cache the LayoutAnalyzer.
+    """
+    if not MODEL_CONFIG_PATH.exists() or not MODEL_WEIGHTS_PATH.exists():
+        st.error("❌ Model files not found! Please check notebooks/models/")
+        return None
+        
+    return LayoutAnalyzer(
+        config_path=str(MODEL_CONFIG_PATH),
+        model_path=str(MODEL_WEIGHTS_PATH)
+    )
 
 
 def numpy_to_streamlit(image: np.ndarray) -> np.ndarray:
@@ -160,6 +181,56 @@ def main():
                 st.session_state['page_index'] = page_index
         else:
             st.info("👆 Upload a PDF file to get started")
+            
+        st.divider()
+        st.header("🧩 Layout Analysis")
+        enable_layout_analysis = st.checkbox("Enable Layout Analysis", help="Detect text, tables, figures, etc.")
+        
+        if enable_layout_analysis and st.session_state.get('pdf_loaded', False):
+            if st.button("Run Layout Analysis"):
+                analyzer = get_layout_analyzer()
+                if analyzer:
+                    with st.spinner("Running Layout Analysis on all pages..."):
+                        layout_results = {}
+                        pages = st.session_state.get('pages', [])
+                        pdf_name = st.session_state.get('current_pdf', 'document')
+                        pdf_stem = Path(pdf_name).stem
+                        
+                        # Create output directory for this PDF
+                        pdf_layout_dir = LAYOUT_ANALYSIS_DIR / pdf_stem
+                        pdf_layout_dir.mkdir(parents=True, exist_ok=True)
+                        
+                        for idx, page in enumerate(pages):
+                            # Convert to RGB for layout analysis if needed, but usually cv2 reads as BGR
+                            # LayoutParser expects RGB usually. 
+                            # Our load_pdf_to_images returns numpy arrays. 
+                            # Let's assume they are BGR (standard opencv).
+                            # LayoutAnalyzer handles detection.
+                            
+                            # Create page directory
+                            page_dir = pdf_layout_dir / f"page_{idx + 1:03d}"
+                            page_dir.mkdir(parents=True, exist_ok=True)
+                            
+                            # Run detection
+                            layout = analyzer.process_image(page)
+                            
+                            # Extract elements
+                            result = analyzer.extract_elements(
+                                page, 
+                                layout, 
+                                output_dir=page_dir,
+                                page_name=f"page_{idx + 1:03d}"
+                            )
+                            
+                            # Save visualization
+                            viz_path = page_dir / "visualization.png"
+                            cv2.imwrite(str(viz_path), result["visualization"])
+                            
+                            layout_results[idx] = result
+                            
+                        st.session_state['layout_results'] = layout_results
+                        st.success("✓ Layout Analysis Complete!")
+                        st.info(f"📁 Results saved to: `{pdf_layout_dir.relative_to(PROJECT_ROOT)}/`")
     
     # Main content area
     if not uploaded_file:
@@ -267,14 +338,54 @@ def main():
                     mime="image/png"
                 )
             
-            with col3:
-                _, buffer = cv2.imencode('.png', results['adaptive'])
                 st.download_button(
                     label="⬇️ Download Adaptive Binary",
                     data=buffer.tobytes(),
                     file_name=f"page_{page_index + 1}_adaptive.png",
                     mime="image/png"
                 )
+            
+            # Layout Analysis Results
+            layout_results = st.session_state.get('layout_results', {})
+            if page_index in layout_results:
+                st.divider()
+                st.subheader("🧩 Layout Analysis Results")
+                
+                l_result = layout_results[page_index]
+                
+                # Visualization
+                st.markdown("**Detection Visualization**")
+                st.image(numpy_to_streamlit(l_result['visualization']), use_column_width=True)
+                
+                # Detected Elements
+                elements = l_result['elements']
+                if elements:
+                    st.markdown(f"**Detected {len(elements)} Elements**")
+                    
+                    # Group by type
+                    grouped_elements = {}
+                    for el in elements:
+                        etype = el['type']
+                        if etype not in grouped_elements:
+                            grouped_elements[etype] = []
+                        grouped_elements[etype].append(el)
+                    
+                    # Create tabs for each type
+                    tabs = st.tabs(list(grouped_elements.keys()))
+                    
+                    for i, (etype, items) in enumerate(grouped_elements.items()):
+                        with tabs[i]:
+                            for item in items:
+                                with st.expander(f"{etype} #{item['id']} (Confidence: N/A)"):
+                                    c1, c2 = st.columns([1, 2])
+                                    with c1:
+                                        st.image(numpy_to_streamlit(item['crop']), use_column_width=True)
+                                    with c2:
+                                        if item['text']:
+                                            st.markdown("**Extracted Text:**")
+                                            st.text_area("OCR Output", item['text'], height=150, key=f"text_{page_index}_{item['id']}")
+                                        else:
+                                            st.info("No text extracted or not a text region.")
 
 
 if __name__ == "__main__":

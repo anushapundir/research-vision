@@ -51,3 +51,8 @@ data/*.pdf
 
 # Logs
 *.log
+
+notebooks/layout-parser/
+
+notebooks/models/
+

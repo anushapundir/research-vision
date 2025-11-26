@@ -90,6 +90,9 @@ def save_preprocessing_outputs(page_idx: int, results: dict) -> None:
             cv2.imwrite(str(output_path), results[name])
 
 
+# Import Gemini Summarizer
+from core.gemini.summarizer import GeminiSummarizer
+
 def main():
     """
     Main Streamlit application.
@@ -201,12 +204,6 @@ def main():
                         pdf_layout_dir.mkdir(parents=True, exist_ok=True)
                         
                         for idx, page in enumerate(pages):
-                            # Convert to RGB for layout analysis if needed, but usually cv2 reads as BGR
-                            # LayoutParser expects RGB usually. 
-                            # Our load_pdf_to_images returns numpy arrays. 
-                            # Let's assume they are BGR (standard opencv).
-                            # LayoutAnalyzer handles detection.
-                            
                             # Create page directory
                             page_dir = pdf_layout_dir / f"page_{idx + 1:03d}"
                             page_dir.mkdir(parents=True, exist_ok=True)
@@ -231,6 +228,22 @@ def main():
                         st.session_state['layout_results'] = layout_results
                         st.success("✓ Layout Analysis Complete!")
                         st.info(f"📁 Results saved to: `{pdf_layout_dir.relative_to(PROJECT_ROOT)}/`")
+
+        st.divider()
+        st.header("🤖 Gemini Summarization")
+        gemini_api_key = st.text_input("Gemini API Key", type="password", help="Enter your Google Gemini API Key")
+        
+        if gemini_api_key and st.session_state.get('layout_results'):
+            if st.button("Generate Summary"):
+                with st.spinner("Generating summary with Gemini..."):
+                    summarizer = GeminiSummarizer(gemini_api_key)
+                    summary_result = summarizer.summarize(st.session_state['layout_results'])
+                    
+                    if "error" in summary_result:
+                        st.error(f"Error generating summary: {summary_result['error']}")
+                    else:
+                        st.session_state['summary_result'] = summary_result
+                        st.success("Summary Generated!")
     
     # Main content area
     if not uploaded_file:
@@ -261,94 +274,98 @@ def main():
         page_index = st.session_state.get('page_index', 0)
         all_results = st.session_state.get('all_results', {})
         
-        if page_index in all_results:
-            results = all_results[page_index]
-            
-            st.subheader(f"📄 Page {page_index + 1} Results")
-            
-            # Display results in a grid layout
-            st.divider()
-            st.subheader("📊 Preprocessing Results")
-            
-            # Row 1: Original and Grayscale
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Original Image**")
-                st.image(numpy_to_streamlit(results['original']), use_column_width=True)
-            with col2:
-                st.markdown("**Grayscale**")
-                st.caption("Converted using weighted average: 0.299R + 0.587G + 0.114B")
-                st.image(numpy_to_streamlit(results['gray']), use_column_width=True)
-            
-            # Row 2: Histogram Equalization
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Histogram Equalized**")
-                st.caption("Global contrast enhancement using histogram redistribution")
-                st.image(numpy_to_streamlit(results['equalized']), use_column_width=True)
-            with col2:
-                st.markdown("**CLAHE Enhanced**")
-                st.caption("Contrast Limited Adaptive Histogram Equalization")
-                st.image(numpy_to_streamlit(results['clahe']), use_column_width=True)
-            
-            # Row 3: Denoising
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Gaussian Blur**")
-                st.caption("Weighted average smoothing for Gaussian noise reduction")
-                st.image(numpy_to_streamlit(results['gaussian']), use_column_width=True)
-            with col2:
-                st.markdown("**Median Blur**")
-                st.caption("Non-linear filter excellent for salt-and-pepper noise")
-                st.image(numpy_to_streamlit(results['median']), use_column_width=True)
-            
-            # Row 4: Binarization
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Otsu's Thresholding**")
-                st.caption("Automatic global threshold using bimodal histogram")
-                st.image(numpy_to_streamlit(results['otsu']), use_column_width=True)
-            with col2:
-                st.markdown("**Adaptive Thresholding**")
-                st.caption("Local thresholding for varying illumination")
-                st.image(numpy_to_streamlit(results['adaptive']), use_column_width=True)
-            
-            # Download section
-            st.divider()
-            st.subheader("💾 Download Processed Images")
-            
-            col1, col2, col3 = st.columns(3)
-            
-            # Prepare download buttons for key outputs
-            with col1:
-                _, buffer = cv2.imencode('.png', results['gray'])
-                st.download_button(
-                    label="⬇️ Download Grayscale",
-                    data=buffer.tobytes(),
-                    file_name=f"page_{page_index + 1}_grayscale.png",
-                    mime="image/png"
-                )
-            
-            with col2:
-                _, buffer = cv2.imencode('.png', results['otsu'])
-                st.download_button(
-                    label="⬇️ Download Otsu Binary",
-                    data=buffer.tobytes(),
-                    file_name=f"page_{page_index + 1}_otsu.png",
-                    mime="image/png"
-                )
-            
-                st.download_button(
-                    label="⬇️ Download Adaptive Binary",
-                    data=buffer.tobytes(),
-                    file_name=f"page_{page_index + 1}_adaptive.png",
-                    mime="image/png"
-                )
-            
+        # Create tabs for different views
+        tab1, tab2, tab3 = st.tabs(["Preprocessing", "Layout Analysis", "Summaries"])
+        
+        with tab1:
+            if page_index in all_results:
+                results = all_results[page_index]
+                
+                st.subheader(f"📄 Page {page_index + 1} Results")
+                
+                # Display results in a grid layout
+                st.divider()
+                st.subheader("📊 Preprocessing Results")
+                
+                # Row 1: Original and Grayscale
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Original Image**")
+                    st.image(numpy_to_streamlit(results['original']), use_column_width=True)
+                with col2:
+                    st.markdown("**Grayscale**")
+                    st.caption("Converted using weighted average: 0.299R + 0.587G + 0.114B")
+                    st.image(numpy_to_streamlit(results['gray']), use_column_width=True)
+                
+                # Row 2: Histogram Equalization
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Histogram Equalized**")
+                    st.caption("Global contrast enhancement using histogram redistribution")
+                    st.image(numpy_to_streamlit(results['equalized']), use_column_width=True)
+                with col2:
+                    st.markdown("**CLAHE Enhanced**")
+                    st.caption("Contrast Limited Adaptive Histogram Equalization")
+                    st.image(numpy_to_streamlit(results['clahe']), use_column_width=True)
+                
+                # Row 3: Denoising
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Gaussian Blur**")
+                    st.caption("Weighted average smoothing for Gaussian noise reduction")
+                    st.image(numpy_to_streamlit(results['gaussian']), use_column_width=True)
+                with col2:
+                    st.markdown("**Median Blur**")
+                    st.caption("Non-linear filter excellent for salt-and-pepper noise")
+                    st.image(numpy_to_streamlit(results['median']), use_column_width=True)
+                
+                # Row 4: Binarization
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Otsu's Thresholding**")
+                    st.caption("Automatic global threshold using bimodal histogram")
+                    st.image(numpy_to_streamlit(results['otsu']), use_column_width=True)
+                with col2:
+                    st.markdown("**Adaptive Thresholding**")
+                    st.caption("Local thresholding for varying illumination")
+                    st.image(numpy_to_streamlit(results['adaptive']), use_column_width=True)
+                
+                # Download section
+                st.divider()
+                st.subheader("💾 Download Processed Images")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                # Prepare download buttons for key outputs
+                with col1:
+                    _, buffer = cv2.imencode('.png', results['gray'])
+                    st.download_button(
+                        label="⬇️ Download Grayscale",
+                        data=buffer.tobytes(),
+                        file_name=f"page_{page_index + 1}_grayscale.png",
+                        mime="image/png"
+                    )
+                
+                with col2:
+                    _, buffer = cv2.imencode('.png', results['otsu'])
+                    st.download_button(
+                        label="⬇️ Download Otsu Binary",
+                        data=buffer.tobytes(),
+                        file_name=f"page_{page_index + 1}_otsu.png",
+                        mime="image/png"
+                    )
+                
+                    st.download_button(
+                        label="⬇️ Download Adaptive Binary",
+                        data=buffer.tobytes(),
+                        file_name=f"page_{page_index + 1}_adaptive.png",
+                        mime="image/png"
+                    )
+        
+        with tab2:
             # Layout Analysis Results
             layout_results = st.session_state.get('layout_results', {})
             if page_index in layout_results:
-                st.divider()
                 st.subheader("🧩 Layout Analysis Results")
                 
                 l_result = layout_results[page_index]
@@ -371,12 +388,12 @@ def main():
                         grouped_elements[etype].append(el)
                     
                     # Create tabs for each type
-                    tabs = st.tabs(list(grouped_elements.keys()))
+                    type_tabs = st.tabs(list(grouped_elements.keys()))
                     
                     for i, (etype, items) in enumerate(grouped_elements.items()):
-                        with tabs[i]:
+                        with type_tabs[i]:
                             for item in items:
-                                with st.expander(f"{etype} #{item['id']} (Confidence: N/A)"):
+                                with st.expander(f"{etype} #{item['id']}"):
                                     c1, c2 = st.columns([1, 2])
                                     with c1:
                                         st.image(numpy_to_streamlit(item['crop']), use_column_width=True)
@@ -386,7 +403,47 @@ def main():
                                             st.text_area("OCR Output", item['text'], height=150, key=f"text_{page_index}_{item['id']}")
                                         else:
                                             st.info("No text extracted or not a text region.")
+            else:
+                st.info("Run Layout Analysis to see results here.")
 
+        with tab3:
+            summary_result = st.session_state.get('summary_result')
+            if summary_result:
+                st.subheader("📝 Research Paper Summary")
+                
+                st.markdown("### Overall Summary")
+                st.write(summary_result.get('overall_summary', 'No summary available.'))
+                
+                st.divider()
+                st.markdown("### Per-Page Summaries")
+                
+                page_summaries = summary_result.get('page_summaries', [])
+                for p_summary in page_summaries:
+                    p_num = p_summary.get('page_number')
+                    st.markdown(f"#### Page {p_num}")
+                    st.write(p_summary.get('summary', ''))
+                    
+                    st.markdown("**Key Points:**")
+                    for point in p_summary.get('key_points', []):
+                        st.markdown(f"- {point}")
+                        
+                        # Try to extract source reference
+                        # Format: (Source: Page X, Item Y)
+                        import re
+                        match = re.search(r"Source: Page (\d+), Item (\d+)", point)
+                        if match:
+                            src_page = int(match.group(1))
+                            src_item = int(match.group(2))
+                            
+                            # Find the element
+                            if (src_page - 1) in layout_results:
+                                src_elements = layout_results[src_page - 1]['elements']
+                                for el in src_elements:
+                                    if el['id'] == src_item:
+                                        with st.expander(f"View Source: {el['type']} #{el['id']}"):
+                                            st.image(numpy_to_streamlit(el['crop']), caption=f"Source for: {point[:50]}...")
+            else:
+                st.info("Enter Gemini API Key and click 'Generate Summary' to see results here.")
 
 if __name__ == "__main__":
     main()

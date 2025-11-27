@@ -23,7 +23,7 @@ The result is an interactive tool that transforms static PDFs into intelligent, 
 
 ## 🚀 Key Features & Technical Details
 
-### 1. �️ Advanced Image Preprocessing
+### 1. 📷 Advanced Image Preprocessing
 Before analysis, every PDF page is converted to a high-resolution image and undergoes a rigorous enhancement pipeline to ensure optimal OCR and detection performance.
 *   **Grayscale Conversion**: Reduces computational complexity by converting 3-channel BGR images to single-channel grayscale.
 *   **Contrast Enhancement**:
@@ -61,7 +61,7 @@ We utilize **LayoutParser** powered by a **Detectron2** backend to perform Objec
     *   **Contextual Citation**: The model is instructed to cite sources using specific IDs (e.g., `(Source: Page 1, Item 5)`), linking insights back to their original location in the document.
     *   **Structured Output**: Returns a JSON object containing both the overall summary and detailed page-wise key points.
 
-### 5. � Interactive Dashboard
+### 5. 📊 Interactive Dashboard
 *   **Framework**: **Streamlit**.
 *   **Functionality**:
     *   **Upload**: Drag-and-drop PDF interface.
@@ -76,24 +76,24 @@ We utilize **LayoutParser** powered by a **Detectron2** backend to perform Objec
 ```
 research-vision/
 ├── app/
-│   └── streamlit_preprocess.py  # 🚀 Main Application: Streamlit UI & Logic
+│   └── streamlit_preprocess.py  # Main Application: Streamlit UI & Logic
 ├── core/
 │   ├── gemini/
-│   │   └── summarizer.py        # � AI Module: Gemini API integration & Prompting
+│   │   └── summarizer.py        # AI Module: Gemini API integration & Prompting
 │   ├── layout/
-│   │   └── layout_analysis.py   # 👁️ Vision Module: LayoutParser & Detectron2 wrapper
+│   │   └── layout_analysis.py   # Vision Module: LayoutParser & Detectron2 wrapper
 │   ├── preprocessing/
-│   │   └── preprocess.py        # ⚡ CV Module: OpenCV image enhancement algorithms
+│   │   └── preprocess.py        # CV Module: OpenCV image enhancement algorithms
 │   └── pdf/
-│       └── pdf_loader.py        # 📄 Utility: PDF to Image conversion
-├── data/                        # � Input: Temporary storage for uploaded PDFs
+│       └── pdf_loader.py        # Utility: PDF to Image conversion
+├── data/                        # Input: Temporary storage for uploaded PDFs
 ├── notebooks/
-│   └── models/                  # 📦 Models: Local storage for model weights & config
+│   └── models/                  # Models: Local storage for model weights & config
 │       ├── config.yaml
 │       └── model_final.pth
-├── outputs/                     # � Output: Generated crops, images, and JSONs
-├── requirements.txt             # �️ Dependencies: Python package list
-└── README.md                    # 📖 Documentation: This file
+├── outputs/                     # Output: Generated crops, images, and JSONs
+├── requirements.txt             # Dependencies: Python package list
+└── README.md                    # Documentation: This file
 ```
 
 ---
@@ -167,7 +167,7 @@ streamlit run app/streamlit_preprocess.py
 
 ---
 
-## � Troubleshooting
+## 💀 Troubleshooting
 
 *   **Tesseract Not Found**:
     *   Error: `TesseractNotFoundError: tesseract is not installed or it's not in your PATH`

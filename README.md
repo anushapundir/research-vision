@@ -1,204 +1,163 @@
-# Research Vision
+# 📝 Research Vision: Intelligent PDF Analysis & Summarization Pipeline
 
-**PDF document analysis and summarization using classical Image Processing, OCR, and AI.**
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B)
+![Gemini](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-8E75B2)
+![OpenCV](https://img.shields.io/badge/CV-OpenCV-5C3EE8)
+![LayoutParser](https://img.shields.io/badge/Layout-LayoutParser-00C853)
 
-An academic project for Image and Video Processing course that implements an end-to-end pipeline for research paper analysis.
+## 📖 Introduction
 
-## 🚀 Quick Start
+**Research Vision** is an advanced document processing system designed to transform static PDF research papers into interactive, structured, and summarized insights. In the academic and research domain, manually extracting information from complex layouts containing text, figures, tables, and formulas is a time-consuming process. 
 
-### First-Time Setup
-
-If you cloned or have the old structure, clean up legacy files:
-```powershell
-.\cleanup.ps1
-```
-
-### Installation
-
-```powershell
-pip install -r requirements.txt
-```
-
-### Run Preprocessing Web App
-
-```powershell
-streamlit run app/streamlit_preprocess.py
-```
-
-Access the app at `http://localhost:8501`
-
-### Run CLI Demo
-
-```powershell
-python scripts/demo.py
-```
-
-## 📋 Features
-
-### ✅ Implemented
-
-- **PDF to Image Conversion** - High-quality rendering at configurable DPI using PyMuPDF
-- **Classical Image Processing Pipeline**:
-  - Grayscale conversion
-  - Histogram equalization (global & CLAHE)
-  - Gaussian blur denoising
-  - Median blur denoising
-  - Otsu's thresholding
-  - Adaptive thresholding
-- **Interactive Web Interface** - View and compare all preprocessing stages
-- **Batch Processing** - All pages processed automatically
-- **Export Capabilities** - Download processed images
-
-## 🏗️ Project Structure
-
-```
-research-vision/
-│
-├── app/
-│   └── streamlit_preprocess.py     # Preprocessing web interface
-│
-├── core/
-│   ├── pdf/
-│   │   └── pdf_loader.py           # PDF to image conversion
-│   │
-│   └── preprocessing/
-│       └── preprocess.py           # Image processing filters
-│
-├── data/                           # Input PDFs
-├── outputs/                        # Processing results
-│   ├── pages/                      # Original page images
-│   ├── preprocessed/               # Filtered images
-│   └── ocr_text/                   # For future OCR output
-│
-├── models/                         # For future ML models
-│
-├── notebooks/                      # Jupyter notebooks for experimentation
-│   ├── preprocessing_tests.ipynb
-│   ├── segmentation_debug.ipynb
-│   └── ocr_quality_tests.ipynb
-│
-├── scripts/                        # Utility scripts
-│   └── demo.py                     # CLI demo script
-│
-├── requirements.txt                # Python dependencies
-└── README.md                       # This file
-```
-
-## 🔬 Preprocessing Pipeline (Current Implementation)
-
-```
-PDF → Load Pages → Grayscale → Histogram Equalization → Denoising → Binarization → Output
-                      ↓              ↓                      ↓           ↓
-                  (weighted)    (global & CLAHE)    (Gaussian/Median) (Otsu/Adaptive)
-```
-
-### Image Processing Techniques
-
-1. **Grayscale Conversion** - Weighted average: `0.299*R + 0.587*G + 0.114*B`
-2. **Histogram Equalization** - Global contrast enhancement
-3. **CLAHE** - Contrast Limited Adaptive Histogram Equalization
-4. **Gaussian Blur** - Noise reduction with Gaussian kernel
-5. **Median Blur** - Salt-and-pepper noise removal
-6. **Otsu's Thresholding** - Automatic global binarization
-7. **Adaptive Thresholding** - Local binarization for varying illumination
-
-## 📊 Usage Examples
-
-### Preprocessing a PDF (CLI)
-
-```python
-from core.pdf.pdf_loader import load_pdf_to_images
-from core.preprocessing.preprocess import run_full_preprocessing
-
-# Load PDF
-pages = load_pdf_to_images("paper.pdf", dpi=200)
-
-# Preprocess first page
-results = run_full_preprocessing(pages[0])
-
-# Access different outputs
-grayscale = results['gray']
-binary = results['otsu']
-adaptive = results['adaptive']
-```
-
-### Using Individual Filters
-
-```python
-from core.preprocessing.preprocess import (
-    to_grayscale,
-    equalize_clahe,
-    binarize_otsu
-)
-
-gray = to_grayscale(page_image)
-enhanced = equalize_clahe(gray, clip_limit=2.0, tile_size=8)
-binary = binarize_otsu(enhanced)
-```
-
-## 🛠️ Tech Stack
-
-### Current
-- **Python 3.8+** - Core language
-- **OpenCV** - Image processing operations
-- **PyMuPDF (fitz)** - High-quality PDF rendering
-- **NumPy** - Numerical array operations
-- **Streamlit** - Interactive web interface
-- **Pillow** - Additional image handling
-
-### Planned
-- **Tesseract/EasyOCR** - Optical character recognition
-- **Google Gemini API** - AI-powered summarization
-- **Matplotlib** - Visualization in notebooks
-
-## 🧪 Development
-
-### Jupyter Notebooks
-
-Use the provided notebooks for experimentation:
-
-```powershell
-# Install Jupyter if needed
-pip install jupyter
-
-# Launch Jupyter
-jupyter notebook notebooks/
-```
-
-- **preprocessing_tests.ipynb** - Test different preprocessing parameters
-- **segmentation_debug.ipynb** - Develop segmentation algorithms
-- **ocr_quality_tests.ipynb** - Compare OCR engines and quality
-
-### Project Status
-
-**Current Phase: Preprocessing** ✅ Complete
-- All classical image processing filters implemented
-- Web and CLI interfaces working
-- Batch processing and export functional
-
-## 📝 Notes
-
-- This is an academic project for learning classical image processing techniques
-- All preprocessing logic is preserved from the original implementation
-- The modular structure allows for easy experimentation and extension
-
-## 👥 Contributing
-
-This is an educational project. When implementing future modules:
-
-1. Follow the existing code style and structure
-2. Add comprehensive docstrings with type hints
-3. Include usage examples in docstrings
-4. Test in the corresponding Jupyter notebook
-5. Update this README with implementation details
-
-## 📄 License
-
-Educational project for Image and Video Processing course.
+This project automates this workflow by combining **Classical Computer Vision** techniques for image preprocessing with **Deep Learning** models for layout analysis and **Generative AI** for semantic understanding. The result is a streamlined pipeline that not only enhances document readability but also provides intelligent, context-aware summaries.
 
 ---
 
-**Version**: 1.0.0  
-**Research Vision** - PDF Preprocessing Pipeline
+## 🚀 Key Features
 
-**Status**: Preprocessing Complete
+*   **📄 Automated PDF Preprocessing**: Converts PDF pages into high-quality images and applies a suite of image enhancement techniques (Denoising, Thresholding, Contrast Enhancement) to improve OCR accuracy.
+*   **🧩 Deep Layout Analysis**: Utilizes **LayoutParser** with a **Detectron2** backend to intelligently segment pages into semantic regions:
+    *   Text Blocks
+    *   Titles & Headers
+    *   Lists
+    *   Tables
+    *   Figures & Diagrams
+*   **🔍 Optical Character Recognition (OCR)**: Integrates **Tesseract OCR** to extract raw text from identified text regions with high precision.
+*   **🤖 AI-Powered Summarization**: Leverages **Google's Gemini 1.5 Flash** model to generate comprehensive summaries. It analyzes both the extracted text and the visual content (figures/tables) to provide a holistic understanding of the paper.
+*   **📊 Interactive Dashboard**: A user-friendly **Streamlit** interface that allows users to visualize every step of the pipeline, from raw image processing to final AI-generated insights.
+
+---
+
+## 🛠️ System Architecture & Pipeline
+
+The project follows a modular pipeline approach, ensuring each stage transforms the data for the next.
+
+```mermaid
+graph TD
+    subgraph Input
+    A[User Uploads PDF]
+    end
+
+    subgraph "Stage 1: Preprocessing"
+    A --> B[PDF Loader & Rasterization]
+    B --> C[Grayscale Conversion]
+    C --> D[Contrast Enhancement <br/> (Histogram Eq / CLAHE)]
+    D --> E[Noise Reduction <br/> (Gaussian & Median Blur)]
+    E --> F[Binarization <br/> (Otsu & Adaptive Thresholding)]
+    end
+
+    subgraph "Stage 2: Layout Analysis"
+    F --> G[LayoutParser Model <br/> (Detectron2)]
+    G --> H[Element Detection]
+    H --> I{Element Classification}
+    I -->|Text/Title/List| J[Tesseract OCR]
+    I -->|Figure/Table| K[Image Cropping]
+    end
+
+    subgraph "Stage 3: AI Synthesis"
+    J & K --> L[Context Aggregation]
+    L --> M[Gemini 1.5 Flash API]
+    M --> N[Structured Summary <br/> (JSON)]
+    end
+
+    subgraph Output
+    N --> O[Streamlit Dashboard]
+    O --> P[Visualizations & Insights]
+    end
+```
+
+---
+
+## 💻 Technical Stack
+
+### Core Frameworks
+*   **Python**: Primary programming language.
+*   **Streamlit**: For building the interactive web application.
+
+### Computer Vision & Image Processing
+*   **OpenCV (cv2)**: Used for all low-level image manipulation (thresholding, blurring, etc.).
+*   **LayoutParser**: A unified toolkit for Deep Learning-based document image analysis.
+*   **Detectron2**: The underlying object detection library used by LayoutParser.
+*   **Tesseract OCR**: For extracting text from image regions.
+
+### Artificial Intelligence
+*   **Google Gemini API**: Uses the `gemini-1.5-flash` model for multimodal (text + image) reasoning and summarization.
+
+---
+
+## 📂 Project Structure
+
+The codebase is organized into modular components for maintainability and scalability.
+
+```
+research-vision/
+├── app/
+│   └── streamlit_preprocess.py  # 🚀 Main Streamlit Application entry point
+├── core/
+│   ├── gemini/
+│   │   └── summarizer.py        # 🤖 Gemini API integration & prompt engineering
+│   ├── layout/
+│   │   └── layout_analysis.py   # 🧩 LayoutParser model wrapper & element extraction
+│   ├── preprocessing/
+│   │   └── preprocess.py        # 🖼️ Classical CV algorithms (Blur, Threshold, etc.)
+│   └── pdf/
+│       └── pdf_loader.py        # 📄 PDF to Image conversion utilities
+├── data/                        # 📁 Temporary storage for uploaded PDFs
+├── notebooks/
+│   └── models/                  # 🧠 Pre-trained Detectron2 model weights & config
+├── outputs/                     # 💾 Generated results (crops, visualizations, JSONs)
+├── requirements.txt             # 📦 Project dependencies
+└── README.md                    # 📖 Project documentation
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+Follow these steps to set up the project locally.
+
+### Prerequisites
+*   Python 3.8 or higher
+*   Tesseract OCR installed on your system ([Installation Guide](https://github.com/tesseract-ocr/tesseract))
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/research-vision.git
+cd research-vision
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Model Setup
+Ensure the LayoutParser model weights (`model_final.pth`) and configuration (`config.yaml`) are placed in `notebooks/models/`.
+
+### 4. Run the Application
+```bash
+streamlit run app/streamlit_preprocess.py
+```
+
+---
+
+## 🎮 Usage Guide
+
+1.  **Upload**: Launch the app and upload a research paper (PDF) via the sidebar.
+2.  **Preprocessing View**: Explore the "Preprocessing" tab to see how computer vision techniques enhance the document image. You can download specific outputs like the binarized or denoised versions.
+3.  **Layout Analysis**: Click **"Run Layout Analysis"** in the sidebar. The system will detect and bound regions of interest. View these in the "Layout Analysis" tab, where you can inspect individual cropped elements (figures, tables, text).
+4.  **Generate Summary**: Enter your **Gemini API Key** in the sidebar and click **"Generate Summary"**. The AI will read the extracted text and look at the figures to produce a detailed, page-by-page and overall summary of the paper.
+
+---
+
+## 🔮 Future Scope
+
+*   **Fine-tuned Models**: Training the layout analysis model specifically on scientific papers for higher accuracy.
+*   **Knowledge Graph Generation**: Mapping relationships between entities extracted from the text.
+*   **Chat with PDF**: Implementing a RAG (Retrieval-Augmented Generation) system to allow users to ask specific questions about the paper.
+*   **Multi-Document Support**: Analyzing and cross-referencing multiple papers simultaneously.
+
+---
+
+*Developed for [Course Name/College Name] Project.*

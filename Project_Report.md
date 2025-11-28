@@ -1,4 +1,4 @@
-<img width="425" height="703" alt="image" src="https://github.com/user-attachments/assets/50f2a70c-d6a6-4fef-83d5-91a8b2db72c8" /># Research Vision: Intelligent PDF Analysis & Summarization Pipeline
+# Research Vision: Intelligent PDF Analysis & Summarization Pipeline
 
 **Course:** Image and Video Processing
 

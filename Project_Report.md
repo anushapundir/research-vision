@@ -754,6 +754,100 @@ Binmakhashen, G. M., & Mahmoud, S. A. (2019). *Document layout analysis: A compr
 
   
 
+## Errors and Limitations
+
+While the Research Vision system demonstrates strong performance across most academic PDFs, certain edge cases and limitations have been identified during testing. This section documents the known errors and challenges encountered.
+
+### Error 1: Inaccurate Text Detection
+
+**Issue:** The layout detection model occasionally fails to accurately detect certain text regions, particularly when dealing with:
+- Dense paragraphs with complex formatting
+- Text with unusual fonts or sizes
+- Text overlapping with background graphics
+- Multi-column layouts with minimal spacing
+
+**Impact:** Some text content may be partially missed or incorrectly segmented during the OCR extraction phase, leading to incomplete text extraction.
+
+![Error 1: Text Detection Failure](file:///e:/Research%20Vision/research-vision/error%20report/Error%201%20-%20can't%20accurately%20detect%20some%20text.png)
+
+**Workaround:** Manual verification of critical text sections or preprocessing with additional contrast enhancement may improve detection accuracy.
+
+### Error 2: Formula Detection Failure (Case 1)
+
+**Issue:** Mathematical formulas and equations are not consistently detected as separate elements by the layout analysis model, especially when:
+- Formulas are inline with text
+- Mathematical notation uses complex symbols
+- Equations are rendered with low contrast
+- Formula regions are small or have irregular shapes
+
+**Impact:** Formulas may be missed during element detection, preventing them from being cropped and sent to the AI for interpretation. This results in incomplete mathematical content analysis.
+
+![Error 2: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%202%20-%20can't%20detect%20formula.png)
+
+### Error 3: Formula Detection Failure (Case 2)
+
+**Issue:** Additional instance of formula detection failure showing the model's inconsistency with different formula types and formatting styles.
+
+**Impact:** Critical mathematical content may be omitted from the final summary, affecting the comprehensiveness of the analysis.
+
+![Error 3: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%203%20-%20can't%20detect%20formula.png)
+
+### Error 4: Formula Detection Failure (Case 3)
+
+**Issue:** Further evidence of the model's difficulty in reliably detecting mathematical formulas across various document styles and layouts.
+
+**Impact:** Reduces the system's effectiveness for heavily mathematical papers, limiting its applicability in fields like physics, mathematics, and engineering.
+
+![Error 4: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%204%20-%20can't%20detect%20formula.png)
+
+### Root Causes and Analysis
+
+**1. Training Data Limitations:**
+The PubLayNet dataset used to train the Detectron2 model contains only 5 element classes (Text, Title, List, Table, Figure), with no dedicated "Formula" or "Equation" class. Mathematical formulas are typically classified as either "Text" or "Figure," leading to inconsistent detection.
+
+**2. Model Architecture Constraints:**
+The Mask R-CNN architecture, while excellent for general layout analysis, may not capture the fine-grained features necessary to distinguish mathematical notation from regular text reliably.
+
+**3. Preprocessing Variations:**
+Different preprocessing techniques (binarization, contrast enhancement) can affect detection accuracy differently across various document types and quality levels.
+
+### Mitigation Strategies
+
+To address these limitations, the following approaches could be considered:
+
+1. **Specialized Formula Detection:**
+   - Integrate a dedicated mathematical formula detection model
+   - Use tools like MathPix or specialized LaTeX OCR engines
+   - Train a custom model on mathematical notation datasets
+
+2. **Enhanced Text Segmentation:**
+   - Apply more aggressive preprocessing for problematic text regions
+   - Implement multi-scale detection to handle varying text sizes
+   - Use ensemble methods combining multiple detection models
+
+3. **Post-Processing Validation:**
+   - Implement heuristic checks for missed content
+   - Use character-level analysis to identify mathematical symbols
+   - Apply confidence thresholds and manual review workflows
+
+4. **Model Fine-tuning:**
+   - Create a custom training dataset with annotated formula regions
+   - Fine-tune the existing model or train from scratch with formula-specific classes
+   - Leverage transfer learning from mathematical document datasets
+
+### Known Limitations Summary
+
+| **Limitation** | **Severity** | **Affected Content** | **Proposed Solution** |
+|----------------|--------------|----------------------|----------------------|
+| Inconsistent text detection | Medium | Dense paragraphs, complex layouts | Enhanced preprocessing, multi-scale detection |
+| Formula detection failures | High | Mathematical equations, inline formulas | Dedicated formula detection model |
+| Small element misses | Low | Superscripts, subscripts, symbols | Higher resolution processing, specialized OCR |
+| Multi-column challenges | Medium | Complex academic layouts | Improved layout segmentation algorithms |
+
+Despite these limitations, the system provides significant value for general document analysis and can be enhanced through the proposed mitigation strategies.
+
+---
+
 ## Conclusion
 
   

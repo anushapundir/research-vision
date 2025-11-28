@@ -1,4 +1,4 @@
-# Research Vision: Intelligent PDF Analysis & Summarization Pipeline
+<img width="425" height="703" alt="image" src="https://github.com/user-attachments/assets/50f2a70c-d6a6-4fef-83d5-91a8b2db72c8" /># Research Vision: Intelligent PDF Analysis & Summarization Pipeline
 
 **Course:** Image and Video Processing
 
@@ -768,7 +768,7 @@ While the Research Vision system demonstrates strong performance across most aca
 
 **Impact:** Some text content may be partially missed or incorrectly segmented during the OCR extraction phase, leading to incomplete text extraction.
 
-![Error 1: Text Detection Failure](file:///e:/Research%20Vision/research-vision/error%20report/Error%201%20-%20can't%20accurately%20detect%20some%20text.png)
+![Error 1: Text Detection Failure] <img width="732" height="950" alt="image" src="https://github.com/user-attachments/assets/fabd8f54-c44c-499f-a2aa-b84a85a25f22" />
 
 **Workaround:** Manual verification of critical text sections or preprocessing with additional contrast enhancement may improve detection accuracy.
 
@@ -782,7 +782,9 @@ While the Research Vision system demonstrates strong performance across most aca
 
 **Impact:** Formulas may be missed during element detection, preventing them from being cropped and sent to the AI for interpretation. This results in incomplete mathematical content analysis.
 
-![Error 2: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%202%20-%20can't%20detect%20formula.png)
+![Error 2: Formula Not Detected]
+
+<img width="732" height="950" alt="image" src="https://github.com/user-attachments/assets/4519bc3f-8dea-418a-a3c8-112d20a620c1" />
 
 ### Error 3: Formula Detection Failure (Case 2)
 
@@ -790,7 +792,9 @@ While the Research Vision system demonstrates strong performance across most aca
 
 **Impact:** Critical mathematical content may be omitted from the final summary, affecting the comprehensiveness of the analysis.
 
-![Error 3: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%203%20-%20can't%20detect%20formula.png)
+![Error 3: Formula Not Detected]
+
+<img width="734" height="951" alt="image" src="https://github.com/user-attachments/assets/4981c876-14aa-4768-b43f-d25a2e94dabd" />
 
 ### Error 4: Formula Detection Failure (Case 3)
 
@@ -798,7 +802,9 @@ While the Research Vision system demonstrates strong performance across most aca
 
 **Impact:** Reduces the system's effectiveness for heavily mathematical papers, limiting its applicability in fields like physics, mathematics, and engineering.
 
-![Error 4: Formula Not Detected](file:///e:/Research%20Vision/research-vision/error%20report/Error%204%20-%20can't%20detect%20formula.png)
+![Error 4: Formula Not Detected]
+
+<img width="735" height="953" alt="image" src="https://github.com/user-attachments/assets/d2911f4d-0710-4bcc-81e2-8ffa21dcb2fc" />
 
 ### Root Causes and Analysis
 
